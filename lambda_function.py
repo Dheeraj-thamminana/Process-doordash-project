@@ -10,7 +10,7 @@ def lambda_handler(event, context):
     for record in event['Records']:
         bucket = record['s3']['bucket']['name']
         key = record['s3']['object']['key']
-        response = s3.get_object(Bucket=bucket, Key=key)
+        response = s3.get_object(Bucket='my-doordash-landing-zn', Key=key)
         
         # Read data into pandas DataFrame
         df = pd.read_json(response['Body'], lines=True)
@@ -22,10 +22,10 @@ def lambda_handler(event, context):
         delivered_json = delivered_df.to_json(orient='records', lines=True)
         
         # Write the filtered data to the target S3 bucket
-        s3.put_object(Bucket='doordash-target-zn', Key=key, Body=delivered_json)
+        s3.put_object(Bucket='my-doordash-target-zn', Key=key, Body=delivered_json)
         
         # Publish a success message to the SNS topic
-        sns.publish(TopicArn='arn:aws:sns:region:account-id:doordash-notification', Message='Delivery data processed successfully.', Subject='Delivery Data Processing')
+        sns.publish(TopicArn='arn:aws:sns:us-east-1:730335312197:doordash-notification', Message='Delivery data processed successfully.', Subject='Delivery Data Processing')
     
     return {
         'statusCode': 200,
